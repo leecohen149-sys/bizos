@@ -2,6 +2,10 @@ import withSerwistInit from "@serwist/next"
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  // Serwist injects a webpack config (used by `build --webpack`). The dev
+  // server runs on Turbopack, which errors on a bare webpack config — an
+  // empty turbopack config silences that and keeps dev on Turbopack.
+  turbopack: {},
   async headers() {
     return [
       {

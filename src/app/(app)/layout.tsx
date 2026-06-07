@@ -8,7 +8,9 @@ import {
   getSessionUser,
   getUserOrgs,
   getActiveOrg,
+  getOrgMembers,
 } from "@/features/org/queries"
+import { OrgProvider } from "@/features/org/org-context"
 import { OrgSwitcher } from "@/features/org/components/org-switcher"
 import { UserMenu } from "@/features/auth/components/user-menu"
 
@@ -34,7 +36,18 @@ export default async function AppLayout({
   const fullName = (profile?.full_name as string | null) ?? ""
   const avatarUrl = (profile?.avatar_url as string | null) ?? null
 
+  const members = await getOrgMembers(activeOrg.id)
+
   return (
+    <OrgProvider
+      value={{
+        orgId: activeOrg.id,
+        orgName: activeOrg.name,
+        currentUserId: user.id,
+        role: activeOrg.role,
+        members,
+      }}
+    >
     <div className="flex min-h-dvh">
       {/* Desktop sidebar (RTL → appears on the right) */}
       <aside className="bg-sidebar text-sidebar-foreground hidden w-64 shrink-0 flex-col border-e p-3 md:flex">
@@ -78,5 +91,6 @@ export default async function AppLayout({
 
       <MobileNav />
     </div>
+    </OrgProvider>
   )
 }

@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# CI workflow kept local until token has `workflow` scope
+.github/workflows/ci.yml

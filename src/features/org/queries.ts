@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js"
 
 import { createClient } from "@/lib/supabase/server"
 import type { OrgRole } from "@/lib/constants/domain"
+import type { OrgMember } from "@/lib/types"
 
 export const ACTIVE_ORG_COOKIE = "bizos-org"
 
@@ -45,6 +46,31 @@ export async function getUserOrgs(): Promise<OrgSummary[]> {
       return { id: org.id, name: org.name, slug: org.slug, role: m.role as OrgRole }
     })
     .filter((o): o is OrgSummary => o !== null)
+}
+
+/** Active members of an org (for assignee pickers, member lists). */
+export async function getOrgMembers(orgId: string): Promise<OrgMember[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("user_id, role, profiles(full_name, avatar_url)")
+    .eq("org_id", orgId)
+    .eq("status", "active")
+
+  if (error || !data) return []
+
+  return data.map((m) => {
+    const p = m.profiles as unknown as {
+      full_name: string | null
+      avatar_url: string | null
+    } | null
+    return {
+      user_id: m.user_id,
+      role: m.role as OrgRole,
+      full_name: p?.full_name ?? null,
+      avatar_url: p?.avatar_url ?? null,
+    }
+  })
 }
 
 /** Resolve the active org from cookie, validated against membership. */
