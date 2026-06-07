@@ -13,6 +13,8 @@ import {
 import { OrgProvider } from "@/features/org/org-context"
 import { OrgSwitcher } from "@/features/org/components/org-switcher"
 import { UserMenu } from "@/features/auth/components/user-menu"
+import { CommandPalette } from "@/features/search/command-palette"
+import { SearchButton, SearchIconButton } from "@/features/search/search-button"
 
 export default async function AppLayout({
   children,
@@ -72,7 +74,13 @@ export default async function AppLayout({
           <div className="md:hidden">
             <Logo showText={false} />
           </div>
+          <div className="hidden flex-1 md:flex">
+            <SearchButton />
+          </div>
           <div className="ms-auto flex items-center gap-1">
+            <span className="md:hidden">
+              <SearchIconButton />
+            </span>
             <span className="md:hidden">
               <ThemeToggle />
             </span>
@@ -90,6 +98,7 @@ export default async function AppLayout({
       </div>
 
       <MobileNav />
+      <CommandPalette />
     </div>
     </OrgProvider>
   )

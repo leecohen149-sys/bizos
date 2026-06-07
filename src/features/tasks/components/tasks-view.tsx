@@ -10,12 +10,20 @@ import { useTasks, useTasksRealtime } from "@/features/tasks/hooks"
 import type { TaskScope } from "@/features/tasks/api"
 import type { TaskWithRelations } from "@/lib/types"
 import type { NewTask } from "@/features/tasks/hooks"
+import { useTaskFilters, filterTasks, type TaskFilters } from "@/features/tasks/filters"
+import { TaskFilterBar } from "./task-filter-bar"
 import { TaskListView } from "./task-list"
 import { TaskBoardView } from "./task-board"
 import { TaskDetailSheet } from "./task-detail-sheet"
 
 type Defaults = Partial<NewTask>
 const VIEWS = ["list", "board"] as const
+
+function scopeKey(scope: TaskScope): string {
+  if (scope.kind === "project") return `project:${scope.projectId}`
+  if (scope.kind === "assignee") return `assignee:${scope.userId}`
+  return scope.kind
+}
 
 export function TasksView({
   scope,
@@ -28,6 +36,8 @@ export function TasksView({
 }) {
   const { data: tasks = [], isLoading } = useTasks(scope)
   useTasksRealtime()
+  const [filters] = useTaskFilters()
+  const visibleTasks = filterTasks(tasks, filters as TaskFilters)
   const [view, setView] = useQueryState(
     "view",
     parseAsStringLiteral(VIEWS).withDefault(defaultView)
@@ -47,6 +57,7 @@ export function TasksView({
 
   return (
     <div className="space-y-4">
+      <TaskFilterBar storageKey={scopeKey(scope)} />
       <div className="flex items-center justify-end gap-1">
         <Button
           variant={view === "list" ? "secondary" : "ghost"}
@@ -71,14 +82,14 @@ export function TasksView({
       <div className={cn(view === "board" && "-mx-4 px-4 md:-mx-6 md:px-6")}>
         {view === "list" ? (
           <TaskListView
-            tasks={tasks}
+            tasks={visibleTasks}
             scope={scope}
             isLoading={isLoading}
             onOpen={openTask}
             quickAddDefaults={quickAddDefaults}
           />
         ) : (
-          <TaskBoardView tasks={tasks} scope={scope} onOpen={openTask} />
+          <TaskBoardView tasks={visibleTasks} scope={scope} onOpen={openTask} />
         )}
       </div>
 

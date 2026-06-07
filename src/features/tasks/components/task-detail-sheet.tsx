@@ -26,6 +26,10 @@ import { StatusSelect, PrioritySelect } from "./status-badge"
 import { AssigneePicker } from "./assignee-picker"
 import { TaskRow } from "./task-row"
 import { QuickAddTask } from "./quick-add-task"
+import { TaskComments } from "./task-comments"
+import { TaskDependencies } from "./task-dependencies"
+import { TaskAttachments } from "./task-attachments"
+import { LabelPicker } from "@/features/labels/components/label-picker"
 
 export function TaskDetailSheet({
   task,
@@ -114,6 +118,20 @@ export function TaskDetailSheet({
               className="h-8 w-40"
             />
           </div>
+
+          <span className="text-muted-foreground">תוויות</span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {task.labels.map((l) => (
+              <span
+                key={l.id}
+                className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                style={{ backgroundColor: l.color }}
+              >
+                {l.name}
+              </span>
+            ))}
+            <LabelPicker taskId={task.id} assigned={task.labels} />
+          </div>
         </div>
 
         <Separator className="my-2" />
@@ -146,6 +164,24 @@ export function TaskDetailSheet({
             defaults={{ parent_task_id: task.id, project_id: task.project_id }}
             placeholder="הוספת תת‑משימה…"
           />
+        </div>
+
+        <Separator className="my-3" />
+        <div className="space-y-2 px-4">
+          <Label className="text-muted-foreground text-xs">תלויות</Label>
+          <TaskDependencies taskId={task.id} />
+        </div>
+
+        <Separator className="my-3" />
+        <div className="space-y-2 px-4">
+          <Label className="text-muted-foreground text-xs">קבצים מצורפים</Label>
+          <TaskAttachments taskId={task.id} />
+        </div>
+
+        <Separator className="my-3" />
+        <div className="space-y-2 px-4">
+          <Label className="text-muted-foreground text-xs">תגובות</Label>
+          <TaskComments taskId={task.id} />
         </div>
 
         <div className="mt-auto flex items-center justify-between p-4">
