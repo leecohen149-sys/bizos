@@ -57,7 +57,7 @@ export function dealsKey(orgId: string) {
   return ["crm", "deals", orgId] as const
 }
 
-export function useDeals() {
+export function useDealsRealtime() {
   const supabase = useSupabase()
   const qc = useQueryClient()
   const { orgId } = useOrg()
@@ -73,6 +73,11 @@ export function useDeals() {
       .subscribe()
     return () => void supabase.removeChannel(channel)
   }, [supabase, qc, orgId])
+}
+
+export function useDeals() {
+  const supabase = useSupabase()
+  const { orgId } = useOrg()
 
   return useQuery({
     queryKey: dealsKey(orgId),

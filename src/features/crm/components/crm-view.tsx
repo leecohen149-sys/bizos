@@ -12,7 +12,7 @@ import { CreateDealDialog } from "./create-deal-dialog"
 import { ContactsView } from "./contacts-view"
 import { CompaniesView } from "./companies-view"
 import type { DealWithRelations } from "@/features/crm/deals-hooks"
-import { useStages, useDeals } from "@/features/crm/deals-hooks"
+import { useStages, useDeals, useDealsRealtime } from "@/features/crm/deals-hooks"
 
 const TABS = ["deals", "contacts", "companies"] as const
 
@@ -21,6 +21,7 @@ export function CrmView() {
     "tab",
     parseAsStringLiteral(TABS).withDefault("deals")
   )
+  useDealsRealtime()
   const { data: pipelineId } = usePipeline()
   const { data: stages = [] } = useStages(pipelineId)
   const { data: deals = [] } = useDeals()
