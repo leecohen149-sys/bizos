@@ -21,5 +21,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/tasks", label: "המשימות שלי", icon: CheckSquare },
   { href: "/projects", label: "פרויקטים", icon: FolderKanban },
   { href: "/crm", label: "לקוחות (CRM)", icon: Users, soon: true },
-  { href: "/notifications", label: "התראות", icon: Bell, soon: true },
+  { href: "/notifications", label: "התראות", icon: Bell },
 ]

@@ -30,6 +30,7 @@ import { TaskComments } from "./task-comments"
 import { TaskDependencies } from "./task-dependencies"
 import { TaskAttachments } from "./task-attachments"
 import { LabelPicker } from "@/features/labels/components/label-picker"
+import { TaskReminders } from "@/features/reminders/components/task-reminders"
 
 export function TaskDetailSheet({
   task,
@@ -164,6 +165,11 @@ export function TaskDetailSheet({
             defaults={{ parent_task_id: task.id, project_id: task.project_id }}
             placeholder="הוספת תת‑משימה…"
           />
+        </div>
+
+        <Separator className="my-3" />
+        <div className="px-4">
+          <TaskReminders taskId={task.id} />
         </div>
 
         <Separator className="my-3" />

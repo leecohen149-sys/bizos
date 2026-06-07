@@ -15,6 +15,7 @@ import { OrgSwitcher } from "@/features/org/components/org-switcher"
 import { UserMenu } from "@/features/auth/components/user-menu"
 import { CommandPalette } from "@/features/search/command-palette"
 import { SearchButton, SearchIconButton } from "@/features/search/search-button"
+import { NotificationBell } from "@/features/notifications/components/notification-bell"
 
 export default async function AppLayout({
   children,
@@ -81,6 +82,7 @@ export default async function AppLayout({
             <span className="md:hidden">
               <SearchIconButton />
             </span>
+            <NotificationBell />
             <span className="md:hidden">
               <ThemeToggle />
             </span>
