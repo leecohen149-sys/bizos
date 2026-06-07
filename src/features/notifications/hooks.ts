@@ -11,7 +11,7 @@ export function notificationsKey(userId: string) {
   return ["notifications", userId] as const
 }
 
-export function useNotifications() {
+export function useNotificationsRealtime() {
   const supabase = useSupabase()
   const qc = useQueryClient()
   const { currentUserId } = useOrg()
@@ -32,6 +32,11 @@ export function useNotifications() {
       .subscribe()
     return () => void supabase.removeChannel(channel)
   }, [supabase, qc, currentUserId])
+}
+
+export function useNotifications() {
+  const supabase = useSupabase()
+  const { currentUserId } = useOrg()
 
   return useQuery({
     queryKey: notificationsKey(currentUserId),

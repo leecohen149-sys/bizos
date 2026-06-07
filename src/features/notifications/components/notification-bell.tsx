@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { formatDate, formatTime } from "@/lib/format"
 import {
   useNotifications,
+  useNotificationsRealtime,
   useMarkRead,
   useMarkAllRead,
 } from "@/features/notifications/hooks"
@@ -26,6 +27,7 @@ function targetHref(n: Notification): string {
 }
 
 export function NotificationBell() {
+  useNotificationsRealtime()
   const router = useRouter()
   const { data: notifications = [] } = useNotifications()
   const unread = notifications.filter((n) => !n.read_at).length
