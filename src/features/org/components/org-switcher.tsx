@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
-import { Check, ChevronsUpDown, Plus } from "lucide-react"
+import { Check, ChevronsUpDown, Plus, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -84,6 +84,10 @@ export function OrgSwitcher({
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => router.push("/members")} className="gap-2">
+          <Users className="size-4" />
+          חברי צוות
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/onboarding")} className="gap-2">
           <Plus className="size-4" />
           עסק חדש

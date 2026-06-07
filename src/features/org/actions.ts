@@ -55,6 +55,37 @@ export async function switchOrgAction(orgId: string): Promise<Result> {
   return { ok: true }
 }
 
+export async function updateMemberRoleAction(
+  orgId: string,
+  userId: string,
+  role: string
+): Promise<Result> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("memberships")
+    .update({ role: role as never })
+    .eq("org_id", orgId)
+    .eq("user_id", userId)
+  if (error) return { error: "עדכון התפקיד נכשל" }
+  revalidatePath("/members")
+  return { ok: true }
+}
+
+export async function removeMemberAction(
+  orgId: string,
+  userId: string
+): Promise<Result> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("memberships")
+    .delete()
+    .eq("org_id", orgId)
+    .eq("user_id", userId)
+  if (error) return { error: "הסרת החבר נכשלה" }
+  revalidatePath("/members")
+  return { ok: true }
+}
+
 export async function inviteMemberAction(
   orgId: string,
   values: unknown

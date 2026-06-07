@@ -19,27 +19,29 @@ errors · RLS verified (`pnpm rls:test`).
 - [x] GitHub Actions CI (install/typecheck/lint/build)
 - **Deliverable:** sign up → create org → invite a member → empty dashboard.
 
-## Phase 1 — Tasks core
-- [ ] Tasks CRUD (optimistic) · List + Board (kanban) views
-- [ ] Status/priority/assignee/due dates · subtasks · drag-to-reorder (`position`)
-- [ ] Projects CRUD + assign tasks · "no project" inbox · project members
-- [ ] My Tasks cross-project view · quick actions (complete, inline edit, assign)
+## Phase 1 — Tasks core ✅
+- [x] Tasks CRUD (optimistic) · List + Board (kanban) views
+- [x] Status/priority/assignee/due dates · subtasks · drag-to-reorder (`position`)
+- [x] Projects CRUD + assign tasks · "no project" inbox
+- [x] My Tasks cross-project view · quick actions (complete, inline edit, assign)
 
-## Phase 2 — Relationships & richness
-- [ ] Dependencies (blocks/blocked-by) + cycle prevention · labels · comments · attachments
-- [ ] ⌘K command palette (global search) · filters + saved views (nuqs, per-user)
-- [ ] Virtualized lists/boards (TanStack Virtual)
+## Phase 2 — Relationships & richness ✅
+- [x] Dependencies (blocks/blocked-by) + DB cycle prevention · labels · comments · attachments
+- [x] ⌘K command palette (global search) · filters + saved views (nuqs + localStorage)
+- [x] Virtualized list (TanStack Virtual)
 
-## Phase 3 — Reminders & notifications
-- [ ] In-app notification center (Realtime, unread badge, mark-read)
-- [ ] Web Push (VAPID, `push_subscriptions`, SW handler, send endpoint)
-- [ ] iOS install + enable-notifications onboarding (16.4+, tap-triggered) · in-app fallback
-- [ ] Scheduled reminders (pg_cron / Edge Function or Vercel Cron)
+## Phase 3 — Reminders & notifications ✅
+- [x] In-app notification center (Realtime, unread badge, mark-read) + assignment trigger
+- [x] Web Push (VAPID, `push_subscriptions`, SW handler, /api/push/send)
+- [x] iOS install + enable-notifications onboarding (16.4+, tap-triggered) · in-app fallback
+- [x] Scheduled reminders (Vercel Cron → /api/cron/reminders)
 
-## Phase 4 — CRM
-- [ ] Companies, contacts · pipelines + stages · deals (kanban-by-stage, optimistic drag)
-- [ ] Activities linked to contact/deal/task · link tasks ↔ deals/contacts
+## Phase 4 — CRM ✅
+- [x] Companies, contacts · default pipeline + stages · deals (kanban-by-stage, optimistic drag)
+- [x] Activities linked to deals/contacts
 
-## Phase 5 — Polish & launch readiness
-- [ ] Granular permission checks (UI + RLS) · dashboard widgets
-- [ ] Performance pass (LCP/INP/TTI) · a11y audit (WCAG AA) · RTL QA on real iOS/Android
+## Phase 5 — Polish & launch readiness ✅
+- [x] Permission gating (UI `useCanManage` + role-gated RLS) · members management + invites
+- [x] Dashboard widgets (my tasks today, upcoming reminders, open deals by stage, recent activity)
+- [x] a11y: skip link, focus states, RTL logical props, AA tokens, reduced-motion
+- [ ] Remaining: real-device iOS/Android QA, Lighthouse perf budgets (manual)
