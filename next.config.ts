@@ -1,7 +1,33 @@
-import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next"
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+    ]
+  },
+}
 
-export default nextConfig;
+/**
+ * Serwist compiles the service worker via webpack. Next.js 16 builds with
+ * Turbopack by default and rejects a webpack config, so `build` runs with
+ * `--webpack` (see package.json). The SW is disabled in dev to keep the
+ * Turbopack dev server clean.
+ */
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  cacheOnNavigation: true,
+  reloadOnOnline: true,
+  disable: process.env.NODE_ENV === "development",
+})
+
+export default withSerwist(nextConfig)
