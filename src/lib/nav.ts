@@ -20,6 +20,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "דשבורד", icon: LayoutDashboard },
   { href: "/tasks", label: "המשימות שלי", icon: CheckSquare },
   { href: "/projects", label: "פרויקטים", icon: FolderKanban },
-  { href: "/crm", label: "לקוחות (CRM)", icon: Users, soon: true },
+  { href: "/crm", label: "לקוחות (CRM)", icon: Users },
   { href: "/notifications", label: "התראות", icon: Bell },
 ]

@@ -1149,6 +1149,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      ensure_default_pipeline: { Args: { _org: string }; Returns: string }
       has_org_role: {
         Args: {
           _org: string
