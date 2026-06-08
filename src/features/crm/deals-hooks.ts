@@ -57,6 +57,11 @@ export function dealsKey(orgId: string) {
   return ["crm", "deals", orgId] as const
 }
 
+/**
+ * Subscribe to realtime deal changes for the org. Call this in exactly ONE
+ * place per screen — a second channel on the same `deals:${orgId}` topic throws
+ * "cannot add postgres_changes callbacks". `useDeals` itself does not subscribe.
+ */
 export function useDealsRealtime() {
   const supabase = useSupabase()
   const qc = useQueryClient()
