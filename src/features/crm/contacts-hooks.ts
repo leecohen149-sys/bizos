@@ -57,6 +57,26 @@ export function useCreateContact() {
   })
 }
 
+export function useUpdateContact() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  const { orgId } = useOrg()
+  const key = contactsKey(orgId)
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: ContactInsert & { id: string }) => {
+      const { data, error } = await supabase
+        .from("crm_contacts")
+        .update(patch)
+        .eq("id", id)
+        .select("*, company:crm_companies(id, name)")
+        .single()
+      if (error) throw error
+      return data as unknown as ContactWithCompany
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: key }),
+  })
+}
+
 export function useDeleteContact() {
   const supabase = useSupabase()
   const qc = useQueryClient()

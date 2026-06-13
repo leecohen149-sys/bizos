@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Building2, Plus, Trash2, Globe } from "lucide-react"
+import { Building2, Plus, Pencil, Trash2, Globe } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -29,10 +29,12 @@ import {
 import {
   useCompanies,
   useCreateCompany,
+  useUpdateCompany,
   useDeleteCompany,
 } from "@/features/crm/companies-hooks"
 import { useCanManage } from "@/features/org/org-context"
 import { createCompanySchema, type CreateCompanyInput } from "@/features/crm/validations"
+import type { CrmCompany } from "@/lib/types"
 
 export function CompaniesView() {
   const { data: companies = [], isLoading } = useCompanies()
@@ -41,7 +43,18 @@ export function CompaniesView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">{canManage && <CreateCompanyDialog />}</div>
+      <div className="flex justify-end">
+        {canManage && (
+          <CompanyFormDialog
+            trigger={
+              <Button>
+                <Plus className="size-4" />
+                חברה חדשה
+              </Button>
+            }
+          />
+        )}
+      </div>
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -71,13 +84,26 @@ export function CompaniesView() {
                   )}
                 </div>
                 {canManage && (
-                  <button
-                    onClick={() => del.mutate(c.id, { onError: () => toast.error("מחיקה נכשלה") })}
-                    className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100"
-                    aria-label="מחיקה"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                    <CompanyFormDialog
+                      company={c}
+                      trigger={
+                        <button
+                          className="text-muted-foreground hover:text-foreground"
+                          aria-label="עריכה"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                      }
+                    />
+                    <button
+                      onClick={() => del.mutate(c.id, { onError: () => toast.error("מחיקה נכשלה") })}
+                      className="text-muted-foreground hover:text-destructive"
+                      aria-label="מחיקה"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -97,36 +123,65 @@ function Empty() {
   )
 }
 
-function CreateCompanyDialog() {
+function CompanyFormDialog({
+  company,
+  trigger,
+}: {
+  company?: CrmCompany
+  trigger: React.ReactNode
+}) {
   const [open, setOpen] = useState(false)
   const create = useCreateCompany()
+  const update = useUpdateCompany()
+  const isEdit = !!company
   const form = useForm<CreateCompanyInput>({
     resolver: zodResolver(createCompanySchema),
     defaultValues: { name: "", domain: "", industry: "", notes: "" },
   })
 
+  // Reset the form to the editing company (or blank) whenever the dialog opens.
+  function onOpenChange(next: boolean) {
+    if (next) {
+      form.reset({
+        name: company?.name ?? "",
+        domain: company?.domain ?? "",
+        industry: company?.industry ?? "",
+        notes: company?.notes ?? "",
+      })
+    }
+    setOpen(next)
+  }
+
   function onSubmit(values: CreateCompanyInput) {
-    create.mutate(values, {
-      onSuccess: () => {
-        toast.success("החברה נוספה")
-        setOpen(false)
-        form.reset()
-      },
-      onError: () => toast.error("יצירה נכשלה"),
-    })
+    if (isEdit) {
+      update.mutate(
+        { id: company.id, ...values },
+        {
+          onSuccess: () => {
+            toast.success("החברה עודכנה")
+            setOpen(false)
+          },
+          onError: () => toast.error("עדכון נכשל"),
+        }
+      )
+    } else {
+      create.mutate(values, {
+        onSuccess: () => {
+          toast.success("החברה נוספה")
+          setOpen(false)
+          form.reset()
+        },
+        onError: () => toast.error("יצירה נכשלה"),
+      })
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="size-4" />
-          חברה חדשה
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>חברה חדשה</DialogTitle>
+          <DialogTitle>{isEdit ? "עריכת חברה" : "חברה חדשה"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -170,8 +225,8 @@ function CreateCompanyDialog() {
               />
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={create.isPending}>
-                יצירה
+              <Button type="submit" disabled={create.isPending || update.isPending}>
+                {isEdit ? "שמירה" : "יצירה"}
               </Button>
             </DialogFooter>
           </form>

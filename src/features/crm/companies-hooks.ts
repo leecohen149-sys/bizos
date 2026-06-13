@@ -68,6 +68,26 @@ export function useCreateCompany() {
   })
 }
 
+export function useUpdateCompany() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  const { orgId } = useOrg()
+  const key = companiesKey(orgId)
+  return useMutation({
+    mutationFn: async ({ id, ...patch }: CompanyInsert & { id: string }) => {
+      const { data, error } = await supabase
+        .from("crm_companies")
+        .update(patch)
+        .eq("id", id)
+        .select("*")
+        .single()
+      if (error) throw error
+      return data as CrmCompany
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: key }),
+  })
+}
+
 export function useDeleteCompany() {
   const supabase = useSupabase()
   const qc = useQueryClient()

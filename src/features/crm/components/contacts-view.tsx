@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus, Trash2, Mail, Phone } from "lucide-react"
+import { Plus, Pencil, Trash2, Mail, Phone } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,9 @@ import {
 import {
   useContacts,
   useCreateContact,
+  useUpdateContact,
   useDeleteContact,
+  type ContactWithCompany,
 } from "@/features/crm/contacts-hooks"
 import { useCompanies } from "@/features/crm/companies-hooks"
 import { useCanManage } from "@/features/org/org-context"
@@ -50,7 +52,18 @@ export function ContactsView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">{canManage && <CreateContactDialog />}</div>
+      <div className="flex justify-end">
+        {canManage && (
+          <ContactFormDialog
+            trigger={
+              <Button>
+                <Plus className="size-4" />
+                איש קשר חדש
+              </Button>
+            }
+          />
+        )}
+      </div>
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -91,13 +104,26 @@ export function ContactsView() {
                     </div>
                   </div>
                   {canManage && (
-                    <button
-                      onClick={() => del.mutate(c.id, { onError: () => toast.error("מחיקה נכשלה") })}
-                      className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100"
-                      aria-label="מחיקה"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+                      <ContactFormDialog
+                        contact={c}
+                        trigger={
+                          <button
+                            className="text-muted-foreground hover:text-foreground"
+                            aria-label="עריכה"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                        }
+                      />
+                      <button
+                        onClick={() => del.mutate(c.id, { onError: () => toast.error("מחיקה נכשלה") })}
+                        className="text-muted-foreground hover:text-destructive"
+                        aria-label="מחיקה"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -109,10 +135,18 @@ export function ContactsView() {
   )
 }
 
-function CreateContactDialog() {
+function ContactFormDialog({
+  contact,
+  trigger,
+}: {
+  contact?: ContactWithCompany
+  trigger: React.ReactNode
+}) {
   const [open, setOpen] = useState(false)
   const create = useCreateContact()
+  const update = useUpdateContact()
   const { data: companies = [] } = useCompanies()
+  const isEdit = !!contact
   const form = useForm<CreateContactInput>({
     resolver: zodResolver(createContactSchema),
     defaultValues: {
@@ -125,31 +159,52 @@ function CreateContactDialog() {
     },
   })
 
+  // Reset the form to the editing contact (or blank) whenever the dialog opens.
+  function onOpenChange(next: boolean) {
+    if (next) {
+      form.reset({
+        first_name: contact?.first_name ?? "",
+        last_name: contact?.last_name ?? "",
+        email: contact?.email ?? "",
+        phone: contact?.phone ?? "",
+        title: contact?.title ?? "",
+        company_id: contact?.company_id ?? null,
+      })
+    }
+    setOpen(next)
+  }
+
   function onSubmit(values: CreateContactInput) {
-    create.mutate(
-      { ...values, email: values.email || null },
-      {
+    const payload = { ...values, email: values.email || null }
+    if (isEdit) {
+      update.mutate(
+        { id: contact.id, ...payload },
+        {
+          onSuccess: () => {
+            toast.success("איש הקשר עודכן")
+            setOpen(false)
+          },
+          onError: () => toast.error("עדכון נכשל"),
+        }
+      )
+    } else {
+      create.mutate(payload, {
         onSuccess: () => {
           toast.success("איש הקשר נוסף")
           setOpen(false)
           form.reset()
         },
         onError: () => toast.error("יצירה נכשלה"),
-      }
-    )
+      })
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="size-4" />
-          איש קשר חדש
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>איש קשר חדש</DialogTitle>
+          <DialogTitle>{isEdit ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -235,8 +290,8 @@ function CreateContactDialog() {
               )}
             />
             <DialogFooter>
-              <Button type="submit" disabled={create.isPending}>
-                יצירה
+              <Button type="submit" disabled={create.isPending || update.isPending}>
+                {isEdit ? "שמירה" : "יצירה"}
               </Button>
             </DialogFooter>
           </form>

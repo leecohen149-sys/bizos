@@ -4,6 +4,7 @@ import type { z } from "zod"
 
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { ApiResource } from "./repo"
+import { dispatchLeadNotification } from "./lead-notify"
 import * as S from "./schemas"
 
 /**
@@ -27,6 +28,11 @@ export type ResourceConfig = {
     orgId: string,
     input: Record<string, unknown>
   ) => Promise<Record<string, unknown>>
+  /**
+   * Optional best-effort side effect after a successful create (e.g. notify on a
+   * new lead). Errors are swallowed by the handler — must not affect the response.
+   */
+  afterCreate?: (orgId: string, row: Record<string, unknown>) => Promise<void>
 }
 
 async function derivePipelineFromStage(
@@ -66,6 +72,8 @@ export const RESOURCES: Record<ApiResource, ResourceConfig> = {
     updateSchema: S.contactUpdateSchema,
     readScope: "contacts:read",
     writeScope: "contacts:write",
+    // New contacts created via the API are leads from automations → notify.
+    afterCreate: dispatchLeadNotification,
   },
   companies: {
     resource: "companies",

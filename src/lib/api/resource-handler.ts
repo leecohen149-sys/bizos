@@ -88,6 +88,14 @@ export function makeCollectionRoute(cfg: ResourceConfig) {
         }
       }
       const row = await repo.create(g.ctx.orgId, cfg.resource, input)
+      // Best-effort side effect (e.g. new-lead notification). Never fail the write.
+      if (cfg.afterCreate) {
+        try {
+          await cfg.afterCreate(g.ctx.orgId, row)
+        } catch {
+          /* swallowed — the resource was created successfully */
+        }
+      }
       return created(row, g.headers)
     } catch (e) {
       return ERRORS.serverError((e as Error).message)
