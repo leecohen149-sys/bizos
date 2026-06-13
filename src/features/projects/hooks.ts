@@ -59,6 +59,7 @@ export function useCreateProject() {
           due_date: input.due_date ?? null,
           archived_at: null,
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           task_count: 0,
         },
       ],

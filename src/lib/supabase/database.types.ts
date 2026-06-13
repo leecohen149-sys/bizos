@@ -39,6 +39,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          org_id: string
+          revoked_at: string | null
+          scopes: string[]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          org_id: string
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          org_id?: string
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_rate_buckets: {
+        Row: {
+          key_id: string
+          tokens: number
+          updated_at: string
+        }
+        Insert: {
+          key_id: string
+          tokens: number
+          updated_at?: string
+        }
+        Update: {
+          key_id?: string
+          tokens?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_rate_buckets_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: true
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attachments: {
         Row: {
           created_at: string
@@ -157,6 +240,7 @@ export type Database = {
           org_id: string
           task_id: string | null
           type: Database["public"]["Enums"]["crm_activity_type"]
+          updated_at: string
         }
         Insert: {
           contact_id?: string | null
@@ -169,6 +253,7 @@ export type Database = {
           org_id: string
           task_id?: string | null
           type?: Database["public"]["Enums"]["crm_activity_type"]
+          updated_at?: string
         }
         Update: {
           contact_id?: string | null
@@ -181,6 +266,7 @@ export type Database = {
           org_id?: string
           task_id?: string | null
           type?: Database["public"]["Enums"]["crm_activity_type"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -229,6 +315,7 @@ export type Database = {
           name: string
           notes: string | null
           org_id: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
@@ -238,6 +325,7 @@ export type Database = {
           name: string
           notes?: string | null
           org_id: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
@@ -247,6 +335,7 @@ export type Database = {
           name?: string
           notes?: string | null
           org_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -270,6 +359,7 @@ export type Database = {
           owner_id: string | null
           phone: string | null
           title: string | null
+          updated_at: string
         }
         Insert: {
           company_id?: string | null
@@ -282,6 +372,7 @@ export type Database = {
           owner_id?: string | null
           phone?: string | null
           title?: string | null
+          updated_at?: string
         }
         Update: {
           company_id?: string | null
@@ -294,6 +385,7 @@ export type Database = {
           owner_id?: string | null
           phone?: string | null
           title?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -334,6 +426,7 @@ export type Database = {
           stage_id: string
           status: Database["public"]["Enums"]["deal_status"]
           title: string
+          updated_at: string
           value: number
         }
         Insert: {
@@ -350,6 +443,7 @@ export type Database = {
           stage_id: string
           status?: Database["public"]["Enums"]["deal_status"]
           title: string
+          updated_at?: string
           value?: number
         }
         Update: {
@@ -366,6 +460,7 @@ export type Database = {
           stage_id?: string
           status?: Database["public"]["Enums"]["deal_status"]
           title?: string
+          updated_at?: string
           value?: number
         }
         Relationships: [
@@ -769,6 +864,7 @@ export type Database = {
           owner_id: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["project_status"]
+          updated_at: string
         }
         Insert: {
           archived_at?: string | null
@@ -782,6 +878,7 @@ export type Database = {
           owner_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
         }
         Update: {
           archived_at?: string | null
@@ -795,6 +892,7 @@ export type Database = {
           owner_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1127,12 +1225,145 @@ export type Database = {
           },
         ]
       }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          created_at: string
+          endpoint_id: string
+          event_id: string
+          event_type: string
+          id: string
+          last_status_code: number | null
+          next_retry_at: string
+          org_id: string
+          payload: Json
+          response_body: string | null
+          status: Database["public"]["Enums"]["webhook_delivery_status"]
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          endpoint_id: string
+          event_id?: string
+          event_type: string
+          id?: string
+          last_status_code?: number | null
+          next_retry_at?: string
+          org_id: string
+          payload: Json
+          response_body?: string | null
+          status?: Database["public"]["Enums"]["webhook_delivery_status"]
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          endpoint_id?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          last_status_code?: number | null
+          next_retry_at?: string
+          org_id?: string
+          payload?: Json
+          response_body?: string | null
+          status?: Database["public"]["Enums"]["webhook_delivery_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_deliveries_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_endpoints: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          events: string[]
+          id: string
+          is_active: boolean
+          org_id: string
+          secret: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          org_id: string
+          secret?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          org_id?: string
+          secret?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_endpoints_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_endpoints_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       accept_invitation: { Args: { _token: string }; Returns: string }
+      consume_rate_token: {
+        Args: { _capacity: number; _key_id: string; _refill_per_sec: number }
+        Returns: {
+          allowed: boolean
+          remaining: number
+          reset_seconds: number
+        }[]
+      }
+      create_api_key: {
+        Args: { _name: string; _org: string; _scopes?: string[] }
+        Returns: {
+          full_key: string
+          id: string
+          key_prefix: string
+        }[]
+      }
       create_organization: {
         Args: { _name: string; _slug?: string }
         Returns: {
@@ -1160,6 +1391,15 @@ export type Database = {
       }
       is_org_member: { Args: { _org: string }; Returns: boolean }
       shares_org_with: { Args: { _other: string }; Returns: boolean }
+      touch_api_key: { Args: { _id: string }; Returns: undefined }
+      verify_api_key: {
+        Args: { _hash: string }
+        Returns: {
+          key_id: string
+          org_id: string
+          scopes: string[]
+        }[]
+      }
     }
     Enums: {
       crm_activity_type: "call" | "meeting" | "email" | "note" | "task"
@@ -1171,6 +1411,7 @@ export type Database = {
       reminder_status: "pending" | "sent" | "cancelled"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "not_started" | "in_progress" | "blocked" | "done"
+      webhook_delivery_status: "pending" | "delivered" | "failed" | "dead"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1310,6 +1551,7 @@ export const Constants = {
       reminder_status: ["pending", "sent", "cancelled"],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["not_started", "in_progress", "blocked", "done"],
+      webhook_delivery_status: ["pending", "delivered", "failed", "dead"],
     },
   },
 } as const

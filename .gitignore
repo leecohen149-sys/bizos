@@ -48,3 +48,6 @@ next-env.d.ts
 
 # CI workflow kept local until token has `workflow` scope
 .github/workflows/ci.yml
+
+# Claude Code personal settings
+.claude/settings.local.json

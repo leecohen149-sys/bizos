@@ -10,6 +10,7 @@ const PUBLIC_PATHS = [
   "/signup",
   "/forgot-password",
   "/auth", // /auth/callback, /auth/confirm
+  "/developers", // public API documentation
 ]
 
 function isPublicPath(pathname: string) {

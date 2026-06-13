@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
-import { Check, ChevronsUpDown, Plus, Users } from "lucide-react"
+import { Check, ChevronsUpDown, Plug, Plus, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -87,6 +87,13 @@ export function OrgSwitcher({
         <DropdownMenuItem onClick={() => router.push("/members")} className="gap-2">
           <Users className="size-4" />
           חברי צוות
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => router.push("/settings/integrations")}
+          className="gap-2"
+        >
+          <Plug className="size-4" />
+          אינטגרציות
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/onboarding")} className="gap-2">
           <Plus className="size-4" />

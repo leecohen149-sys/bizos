@@ -32,3 +32,22 @@ export function getServiceRoleKey(): string {
   if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set")
   return key
 }
+
+/**
+ * Server-only config for the public automation API + outbound webhooks.
+ * Read lazily so missing optional vars don't break the client bundle.
+ */
+export function getApiConfig() {
+  return {
+    /** Shared secret guarding the internal /api/webhooks/dispatch route. */
+    webhookDispatchSecret: process.env.BIZOS_WEBHOOK_DISPATCH_SECRET ?? "",
+    /** Bearer secret for the webhook sweeper cron (reuses the reminders cron secret). */
+    cronSecret: process.env.CRON_SECRET ?? "",
+    /** Token-bucket size per API key. */
+    rateLimitCapacity: Number(process.env.BIZOS_API_RATE_CAPACITY ?? "120"),
+    /** Token refill rate (tokens/second) per API key. */
+    rateLimitRefillPerSec: Number(process.env.BIZOS_API_RATE_REFILL ?? "2"),
+    /** Public base URL used to build absolute links in API responses/docs. */
+    appUrl: publicEnv.NEXT_PUBLIC_APP_URL,
+  }
+}

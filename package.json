@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "db:types": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
     "db:push": "supabase db push",
-    "rls:test": "tsx scripts/rls-test.ts"
+    "rls:test": "tsx scripts/rls-test.ts",
+    "api:isolation": "tsx scripts/api-isolation-test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
