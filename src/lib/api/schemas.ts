@@ -28,7 +28,17 @@ export const dealUpdateSchema = dealCreateSchema.partial().extend({
 })
 
 // --- contacts ---------------------------------------------------------------
-export const contactCreateSchema = createContactSchema.extend({
+// Intentionally lenient (unlike the UI form schema): leads must never be blocked
+// by a typo'd email or a missing field. Email is accepted as free text (no
+// format check) and first_name is optional — it's defaulted server-side
+// (resources.ts prepareCreate) so the row always has a name.
+export const contactCreateSchema = z.object({
+  first_name: z.string().trim().max(120).optional().nullable(),
+  last_name: z.string().max(120).optional().nullable(),
+  email: z.string().max(200).optional().nullable(),
+  phone: z.string().max(60).optional().nullable(),
+  title: z.string().max(160).optional().nullable(),
+  company_id: z.string().uuid().optional().nullable(),
   owner_id: z.string().uuid().optional().nullable(),
 })
 export const contactUpdateSchema = contactCreateSchema.partial()

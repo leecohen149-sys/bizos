@@ -35,6 +35,15 @@ export type ResourceConfig = {
   afterCreate?: (orgId: string, row: Record<string, unknown>) => Promise<void>
 }
 
+/** Leads must never be blocked by an empty name — fall back to a sensible default. */
+async function ensureLeadName(
+  _orgId: string,
+  input: Record<string, unknown>
+): Promise<Record<string, unknown>> {
+  const fn = typeof input.first_name === "string" ? input.first_name.trim() : ""
+  return { ...input, first_name: fn || "ליד חדש" }
+}
+
 async function derivePipelineFromStage(
   orgId: string,
   input: Record<string, unknown>
@@ -72,6 +81,7 @@ export const RESOURCES: Record<ApiResource, ResourceConfig> = {
     updateSchema: S.contactUpdateSchema,
     readScope: "contacts:read",
     writeScope: "contacts:write",
+    prepareCreate: ensureLeadName,
     // New contacts created via the API are leads from automations → notify.
     afterCreate: dispatchLeadNotification,
   },
