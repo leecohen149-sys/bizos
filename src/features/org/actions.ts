@@ -67,7 +67,7 @@ export async function updateMemberRoleAction(
     .eq("org_id", orgId)
     .eq("user_id", userId)
   if (error) return { error: "עדכון התפקיד נכשל" }
-  revalidatePath("/members")
+  revalidatePath("/settings/members")
   return { ok: true }
 }
 
@@ -82,7 +82,7 @@ export async function removeMemberAction(
     .eq("org_id", orgId)
     .eq("user_id", userId)
   if (error) return { error: "הסרת החבר נכשלה" }
-  revalidatePath("/members")
+  revalidatePath("/settings/members")
   return { ok: true }
 }
 
@@ -112,6 +112,6 @@ export async function inviteMemberAction(
     .single()
 
   if (error || !data) return { error: "שליחת ההזמנה נכשלה" }
-  revalidatePath("/members")
+  revalidatePath("/settings/members")
   return { ok: true, token: data.token as string }
 }

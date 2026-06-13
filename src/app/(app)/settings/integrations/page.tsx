@@ -36,9 +36,9 @@ export default async function IntegrationsPage() {
     .limit(20)
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">אינטגרציות ואוטומציות</h1>
+        <h2 className="text-lg font-semibold tracking-tight">אינטגרציות ואוטומציות</h2>
         <p className="text-muted-foreground mt-1 text-sm">
           חברו את BizOS ל-n8n, Make ו-Zapier דרך מפתחות API ו-Webhooks.{" "}
           <a href="/developers" target="_blank" className="text-primary underline">

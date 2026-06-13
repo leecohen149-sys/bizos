@@ -1,6 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
+import Link from "next/link"
 import { LogOut, Settings } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -50,9 +51,11 @@ export function UserMenu({
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled className="gap-2">
-          <Settings className="size-4" />
-          הגדרות (בקרוב)
+        <DropdownMenuItem asChild className="gap-2">
+          <Link href="/settings">
+            <Settings className="size-4" />
+            הגדרות
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
