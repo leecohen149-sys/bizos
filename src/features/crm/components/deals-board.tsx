@@ -77,6 +77,10 @@ function StageColumn({
     <div className="flex w-72 shrink-0 flex-col">
       <div className="mb-2 flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
+          <span
+            className="size-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: stage.color }}
+          />
           <span className="text-sm font-medium">{stage.name}</span>
           <span className="text-muted-foreground text-xs">{deals.length}</span>
         </div>

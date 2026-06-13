@@ -539,6 +539,7 @@ export type Database = {
       }
       crm_stages: {
         Row: {
+          color: string
           created_at: string
           id: string
           name: string
@@ -548,6 +549,7 @@ export type Database = {
           probability: number
         }
         Insert: {
+          color?: string
           created_at?: string
           id?: string
           name: string
@@ -557,6 +559,7 @@ export type Database = {
           probability?: number
         }
         Update: {
+          color?: string
           created_at?: string
           id?: string
           name?: string
@@ -1390,6 +1393,15 @@ export type Database = {
         Returns: boolean
       }
       is_org_member: { Args: { _org: string }; Returns: boolean }
+      move_deals_and_delete_stage: {
+        Args: { _stage: string; _target: string }
+        Returns: undefined
+      }
+      pg_net_available: { Args: never; Returns: boolean }
+      set_webhook_dispatch_config: {
+        Args: { _secret: string; _url: string }
+        Returns: undefined
+      }
       shares_org_with: { Args: { _other: string }; Returns: boolean }
       touch_api_key: { Args: { _id: string }; Returns: undefined }
       verify_api_key: {

@@ -12,13 +12,7 @@ import {
   useMarkRead,
   useMarkAllRead,
 } from "@/features/notifications/hooks"
-import type { Notification } from "@/lib/types"
-
-function targetHref(n: Notification): string {
-  if (n.entity_type === "task") return "/tasks"
-  if (n.entity_type === "deal") return "/crm"
-  return "/"
-}
+import { notificationHref } from "@/features/notifications/notification-target"
 
 export function NotificationsList() {
   const router = useRouter()
@@ -51,7 +45,7 @@ export function NotificationsList() {
           key={n.id}
           onClick={() => {
             if (!n.read_at) markRead.mutate(n.id)
-            router.push(targetHref(n))
+            router.push(notificationHref(n))
           }}
           className={cn(
             "hover:border-primary/40 cursor-pointer p-3 transition-colors",

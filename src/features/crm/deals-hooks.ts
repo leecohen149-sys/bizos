@@ -53,6 +53,88 @@ export function useStages(pipelineId: string | undefined) {
   })
 }
 
+function stagesKey(pipelineId: string) {
+  return ["crm", "stages", pipelineId] as const
+}
+
+export function useCreateStage(pipelineId: string | undefined) {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  const { orgId } = useOrg()
+  return useMutation({
+    mutationFn: async ({ name, color }: { name: string; color: string }) => {
+      const { data: last } = await supabase
+        .from("crm_stages")
+        .select("position")
+        .eq("pipeline_id", pipelineId!)
+        .order("position", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      const position = (last?.position ?? 0) + 1000
+      const { data, error } = await supabase
+        .from("crm_stages")
+        .insert({ org_id: orgId, pipeline_id: pipelineId!, name, color, position })
+        .select("*")
+        .single()
+      if (error) throw error
+      return data as CrmStage
+    },
+    onSuccess: () =>
+      pipelineId &&
+      qc.invalidateQueries({ queryKey: stagesKey(pipelineId) }),
+  })
+}
+
+type StagePatch = { name?: string; color?: string; position?: number }
+
+export function useUpdateStage(pipelineId: string | undefined) {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: StagePatch }) => {
+      const { error } = await supabase.from("crm_stages").update(patch).eq("id", id)
+      if (error) throw error
+    },
+    onSuccess: () =>
+      pipelineId &&
+      qc.invalidateQueries({ queryKey: stagesKey(pipelineId) }),
+  })
+}
+
+export function useDeleteStage(pipelineId: string | undefined) {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("crm_stages").delete().eq("id", id)
+      if (error) throw error
+    },
+    onSuccess: () =>
+      pipelineId &&
+      qc.invalidateQueries({ queryKey: stagesKey(pipelineId) }),
+  })
+}
+
+/** Move all deals from one stage to another, then delete the source stage. */
+export function useMoveDealsAndDeleteStage(pipelineId: string | undefined) {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  const { orgId } = useOrg()
+  return useMutation({
+    mutationFn: async ({ stageId, targetId }: { stageId: string; targetId: string }) => {
+      const { error } = await supabase.rpc("move_deals_and_delete_stage", {
+        _stage: stageId,
+        _target: targetId,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => {
+      if (pipelineId) qc.invalidateQueries({ queryKey: stagesKey(pipelineId) })
+      qc.invalidateQueries({ queryKey: dealsKey(orgId) })
+    },
+  })
+}
+
 export function dealsKey(orgId: string) {
   return ["crm", "deals", orgId] as const
 }

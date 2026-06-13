@@ -9,6 +9,7 @@ import { useCanManage } from "@/features/org/org-context"
 import { DealsBoard } from "./deals-board"
 import { DealDetailSheet } from "./deal-detail-sheet"
 import { CreateDealDialog } from "./create-deal-dialog"
+import { ManageStagesDialog } from "./manage-stages-dialog"
 import { ContactsView } from "./contacts-view"
 import { CompaniesView } from "./companies-view"
 import type { DealWithRelations } from "@/features/crm/deals-hooks"
@@ -42,7 +43,10 @@ export function CrmView() {
           <TabsTrigger value="companies">חברות</TabsTrigger>
         </TabsList>
         {tab === "deals" && canManage && pipelineId && stages[0] && (
-          <CreateDealDialog pipelineId={pipelineId} stageId={stages[0].id} />
+          <div className="flex items-center gap-2">
+            <ManageStagesDialog pipelineId={pipelineId} />
+            <CreateDealDialog pipelineId={pipelineId} stageId={stages[0].id} />
+          </div>
         )}
       </div>
 

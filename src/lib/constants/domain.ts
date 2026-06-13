@@ -78,5 +78,19 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number]
 export const DEAL_STATUSES = ["open", "won", "lost"] as const
 export type DealStatus = (typeof DEAL_STATUSES)[number]
 
+/** Color palette for customizable deal pipeline stages (hex, stored on crm_stages.color). */
+export const STAGE_COLORS = [
+  "#6366f1",
+  "#0ea5e9",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#ec4899",
+  "#8b5cf6",
+  "#14b8a6",
+  "#64748b",
+] as const
+export const DEFAULT_STAGE_COLOR = STAGE_COLORS[0]
+
 export const DEFAULT_LOCALE = "he"
 export const DEFAULT_CURRENCY = "ILS"

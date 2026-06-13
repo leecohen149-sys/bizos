@@ -18,13 +18,7 @@ import {
   useMarkRead,
   useMarkAllRead,
 } from "@/features/notifications/hooks"
-import type { Notification } from "@/lib/types"
-
-function targetHref(n: Notification): string {
-  if (n.entity_type === "task") return "/tasks"
-  if (n.entity_type === "deal") return "/crm"
-  return "/"
-}
+import { notificationHref } from "@/features/notifications/notification-target"
 
 export function NotificationBell() {
   useNotificationsRealtime()
@@ -73,7 +67,7 @@ export function NotificationBell() {
                   <button
                     onClick={() => {
                       if (!n.read_at) markRead.mutate(n.id)
-                      router.push(targetHref(n))
+                      router.push(notificationHref(n))
                     }}
                     className={cn(
                       "hover:bg-accent flex w-full gap-2 px-3 py-2.5 text-start",
