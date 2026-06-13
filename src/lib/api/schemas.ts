@@ -1,10 +1,6 @@
 import { z } from "zod"
 
-import {
-  createCompanySchema,
-  createContactSchema,
-  createDealSchema,
-} from "@/features/crm/validations"
+import { createCompanySchema, createDealSchema } from "@/features/crm/validations"
 import { createTaskSchema, updateTaskSchema } from "@/features/tasks/validations"
 import {
   createProjectSchema,
