@@ -10,6 +10,17 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Separator } from "@/components/ui/separator"
 import { Label } from "@/components/ui/label"
 import {
@@ -133,17 +144,36 @@ export function DealDetailSheet({
         </div>
 
         <div className="mt-auto flex justify-end p-4">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => {
-              del.mutate(deal.id, { onError: () => toast.error("מחיקה נכשלה") })
-              onOpenChange(false)
-            }}
-          >
-            <Trash2 className="size-4" />
-            מחיקת עסקה
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                <Trash2 className="size-4" />
+                מחיקת עסקה
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>מחיקת עסקה</AlertDialogTitle>
+                <AlertDialogDescription>
+                  האם למחוק את {deal.title}? לא ניתן לבטל פעולה זו.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>ביטול</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                  onClick={() => {
+                    del.mutate(deal.id, {
+                      onError: () => toast.error("מחיקה נכשלה"),
+                    })
+                    onOpenChange(false)
+                  }}
+                >
+                  מחיקה
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </SheetContent>
     </Sheet>

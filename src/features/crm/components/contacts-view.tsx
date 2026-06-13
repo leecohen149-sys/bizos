@@ -35,6 +35,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
   useContacts,
   useCreateContact,
   useUpdateContact,
@@ -116,13 +127,37 @@ export function ContactsView() {
                           </button>
                         }
                       />
-                      <button
-                        onClick={() => del.mutate(c.id, { onError: () => toast.error("מחיקה נכשלה") })}
-                        className="text-muted-foreground hover:text-destructive"
-                        aria-label="מחיקה"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button
+                            className="text-muted-foreground hover:text-destructive"
+                            aria-label="מחיקה"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>מחיקת איש קשר</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              האם למחוק את {name}? לא ניתן לבטל פעולה זו.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>ביטול</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-white hover:bg-destructive/90"
+                              onClick={() =>
+                                del.mutate(c.id, {
+                                  onError: () => toast.error("מחיקה נכשלה"),
+                                })
+                              }
+                            >
+                              מחיקה
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   )}
                 </CardContent>

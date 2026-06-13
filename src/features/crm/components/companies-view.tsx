@@ -27,6 +27,17 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
   useCompanies,
   useCreateCompany,
   useUpdateCompany,
@@ -96,13 +107,37 @@ export function CompaniesView() {
                         </button>
                       }
                     />
-                    <button
-                      onClick={() => del.mutate(c.id, { onError: () => toast.error("מחיקה נכשלה") })}
-                      className="text-muted-foreground hover:text-destructive"
-                      aria-label="מחיקה"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="text-muted-foreground hover:text-destructive"
+                          aria-label="מחיקה"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>מחיקת חברה</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            האם למחוק את {c.name}? לא ניתן לבטל פעולה זו.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>ביטול</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                            onClick={() =>
+                              del.mutate(c.id, {
+                                onError: () => toast.error("מחיקה נכשלה"),
+                              })
+                            }
+                          >
+                            מחיקה
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
               </CardContent>
