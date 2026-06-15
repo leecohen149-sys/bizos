@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { optimisticMutation } from "@/lib/query/optimistic"
@@ -19,6 +20,30 @@ export type ContactWithCompany = CrmContact & {
 
 export function contactsKey(orgId: string) {
   return ["crm", "contacts", orgId] as const
+}
+
+/**
+ * Subscribe to realtime contact changes for the org so new leads (created via
+ * the public API) appear on the open CRM screen without a manual refresh. Call
+ * this in exactly ONE place per screen — a second channel on the same
+ * `contacts:${orgId}` topic throws "cannot add postgres_changes callbacks".
+ */
+export function useContactsRealtime() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  const { orgId } = useOrg()
+
+  React.useEffect(() => {
+    const channel = supabase
+      .channel(`contacts:${orgId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "crm_contacts", filter: `org_id=eq.${orgId}` },
+        () => void qc.invalidateQueries({ queryKey: contactsKey(orgId) })
+      )
+      .subscribe()
+    return () => void supabase.removeChannel(channel)
+  }, [supabase, qc, orgId])
 }
 
 export function useContacts() {

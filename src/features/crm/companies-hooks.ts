@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { optimisticMutation } from "@/lib/query/optimistic"
@@ -15,6 +16,30 @@ type CompanyInsert = Omit<
 
 export function companiesKey(orgId: string) {
   return ["crm", "companies", orgId] as const
+}
+
+/**
+ * Subscribe to realtime company changes for the org so companies created via
+ * the public API appear on the open CRM screen without a manual refresh. Call
+ * this in exactly ONE place per screen — a second channel on the same
+ * `companies:${orgId}` topic throws "cannot add postgres_changes callbacks".
+ */
+export function useCompaniesRealtime() {
+  const supabase = useSupabase()
+  const qc = useQueryClient()
+  const { orgId } = useOrg()
+
+  React.useEffect(() => {
+    const channel = supabase
+      .channel(`companies:${orgId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "crm_companies", filter: `org_id=eq.${orgId}` },
+        () => void qc.invalidateQueries({ queryKey: companiesKey(orgId) })
+      )
+      .subscribe()
+    return () => void supabase.removeChannel(channel)
+  }, [supabase, qc, orgId])
 }
 
 export function useCompanies() {

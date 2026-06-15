@@ -17,6 +17,8 @@ import { ContactsView } from "./contacts-view"
 import { CompaniesView } from "./companies-view"
 import type { DealWithRelations } from "@/features/crm/deals-hooks"
 import { useStages, useDeals, useDealsRealtime } from "@/features/crm/deals-hooks"
+import { useContactsRealtime } from "@/features/crm/contacts-hooks"
+import { useCompaniesRealtime } from "@/features/crm/companies-hooks"
 
 const TABS = ["deals", "contacts", "companies"] as const
 const DEAL_VIEWS = ["kanban", "table"] as const
@@ -31,6 +33,8 @@ export function CrmView() {
     parseAsStringLiteral(DEAL_VIEWS).withDefault("kanban")
   )
   useDealsRealtime()
+  useContactsRealtime()
+  useCompaniesRealtime()
   const { data: pipelineId } = usePipeline()
   const { data: stages = [] } = useStages(pipelineId)
   const { data: deals = [] } = useDeals()
