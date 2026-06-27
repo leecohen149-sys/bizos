@@ -29,6 +29,7 @@ import { signUpAction } from "@/features/auth/actions"
 import { GoogleButton } from "@/features/auth/components/google-button"
 import { isGoogleOAuthEnabled } from "@/lib/env"
 import { signUpSchema, type SignUpInput } from "@/lib/validations/auth"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export default function SignupPage() {
   const [isPending, startTransition] = useTransition()
@@ -40,7 +41,7 @@ export default function SignupPage() {
 
   function onSubmit(values: SignUpInput) {
     startTransition(async () => {
-      const res = await signUpAction(values)
+      const res = await withSkewRecovery(() => signUpAction(values))
       if (res && "error" in res) {
         toast.error(res.error)
       } else if (res && "message" in res) {

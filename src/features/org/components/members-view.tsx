@@ -37,6 +37,7 @@ import {
 } from "@/features/org/actions"
 import { inviteMemberSchema, type InviteMemberInput } from "@/lib/validations/org"
 import { publicEnv } from "@/lib/env"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export function MembersView() {
   const { orgId, members, role, currentUserId } = useOrg()
@@ -68,7 +69,9 @@ export function MembersView() {
                     defaultValue={m.role}
                     onValueChange={(value) =>
                       startTransition(async () => {
-                        const res = await updateMemberRoleAction(orgId, m.user_id, value)
+                        const res = await withSkewRecovery(() =>
+                          updateMemberRoleAction(orgId, m.user_id, value)
+                        )
                         if ("error" in res) toast.error(res.error)
                         else toast.success("התפקיד עודכן")
                       })
@@ -98,7 +101,9 @@ export function MembersView() {
                     aria-label="הסרה"
                     onClick={() =>
                       startTransition(async () => {
-                        const res = await removeMemberAction(orgId, m.user_id)
+                        const res = await withSkewRecovery(() =>
+                          removeMemberAction(orgId, m.user_id)
+                        )
                         if ("error" in res) toast.error(res.error)
                         else toast.success("החבר הוסר")
                       })
@@ -126,7 +131,7 @@ function InviteForm({ orgId }: { orgId: string }) {
 
   function onSubmit(values: InviteMemberInput) {
     startTransition(async () => {
-      const res = await inviteMemberAction(orgId, values)
+      const res = await withSkewRecovery(() => inviteMemberAction(orgId, values))
       if ("error" in res) {
         toast.error(res.error)
         return

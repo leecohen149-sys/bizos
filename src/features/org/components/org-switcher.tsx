@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils"
 import { ORG_ROLE_LABELS } from "@/lib/constants/domain"
 import { switchOrgAction } from "@/features/org/actions"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 import type { OrgSummary } from "@/features/org/queries"
 
 export function OrgSwitcher({
@@ -33,7 +34,7 @@ export function OrgSwitcher({
   function select(orgId: string) {
     if (orgId === activeOrgId) return
     startTransition(async () => {
-      const res = await switchOrgAction(orgId)
+      const res = await withSkewRecovery(() => switchOrgAction(orgId))
       if ("error" in res) toast.error(res.error)
       else router.refresh()
     })

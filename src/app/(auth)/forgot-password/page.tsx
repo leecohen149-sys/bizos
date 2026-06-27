@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { forgotPasswordAction } from "@/features/auth/actions"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
@@ -39,7 +40,7 @@ export default function ForgotPasswordPage() {
 
   function onSubmit(values: ForgotPasswordInput) {
     startTransition(async () => {
-      const res = await forgotPasswordAction(values)
+      const res = await withSkewRecovery(() => forgotPasswordAction(values))
       if (res && "error" in res) toast.error(res.error)
       else setDone(true)
     })

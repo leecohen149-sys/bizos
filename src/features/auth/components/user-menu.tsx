@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { signOutAction } from "@/features/auth/actions"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export function UserMenu({
   fullName,
@@ -60,7 +61,7 @@ export function UserMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={isPending}
-          onClick={() => startTransition(() => void signOutAction())}
+          onClick={() => startTransition(() => void withSkewRecovery(() => signOutAction()))}
           className="gap-2 text-destructive focus:text-destructive"
         >
           <LogOut className="size-4" />

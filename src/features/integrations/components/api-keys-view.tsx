@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { API_SCOPES } from "@/features/integrations/constants"
 import { createApiKeyAction, revokeApiKeyAction } from "@/features/integrations/actions"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export type ApiKeyRow = {
   id: string
@@ -55,7 +56,7 @@ export function ApiKeysView({ keys }: { keys: ApiKeyRow[] }) {
 
   function submit() {
     startTransition(async () => {
-      const res = await createApiKeyAction({ name, scopes })
+      const res = await withSkewRecovery(() => createApiKeyAction({ name, scopes }))
       if ("error" in res) {
         toast.error(res.error)
         return
@@ -70,7 +71,7 @@ export function ApiKeysView({ keys }: { keys: ApiKeyRow[] }) {
 
   function revoke(id: string) {
     startTransition(async () => {
-      const res = await revokeApiKeyAction(id)
+      const res = await withSkewRecovery(() => revokeApiKeyAction(id))
       if ("error" in res) toast.error(res.error)
       else {
         toast.success("המפתח בוטל")

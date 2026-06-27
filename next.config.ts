@@ -29,7 +29,11 @@ const nextConfig: NextConfig = {
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
-  cacheOnNavigation: true,
+  // Don't let the SW serve a cached HTML shell for online navigations: a stale
+  // shell carries old Server Action IDs and triggers "Server action not found"
+  // 404s after a deploy (version skew). Online users get the fresh document;
+  // the `/~offline` fallback in sw.ts still covers true-offline navigation.
+  cacheOnNavigation: false,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development",
 })

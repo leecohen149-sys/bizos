@@ -43,6 +43,7 @@ import {
 } from "@/lib/validations/org"
 import { ORG_ROLES, ORG_ROLE_LABELS } from "@/lib/constants/domain"
 import { publicEnv } from "@/lib/env"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export function OnboardingWizard() {
   const router = useRouter()
@@ -74,7 +75,7 @@ function CreateOrgStep({ onCreated }: { onCreated: (id: string) => void }) {
 
   function onSubmit(values: CreateOrgInput) {
     startTransition(async () => {
-      const res = await createOrganizationAction(values)
+      const res = await withSkewRecovery(() => createOrganizationAction(values))
       if ("error" in res) toast.error(res.error)
       else onCreated(res.orgId)
     })
@@ -134,7 +135,7 @@ function InviteStep({
 
   function onSubmit(values: InviteMemberInput) {
     startTransition(async () => {
-      const res = await inviteMemberAction(orgId, values)
+      const res = await withSkewRecovery(() => inviteMemberAction(orgId, values))
       if ("error" in res) {
         toast.error(res.error)
         return

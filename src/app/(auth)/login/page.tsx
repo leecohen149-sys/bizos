@@ -28,6 +28,7 @@ import { signInAction } from "@/features/auth/actions"
 import { GoogleButton } from "@/features/auth/components/google-button"
 import { isGoogleOAuthEnabled } from "@/lib/env"
 import { signInSchema, type SignInInput } from "@/lib/validations/auth"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition()
@@ -38,7 +39,7 @@ export default function LoginPage() {
 
   function onSubmit(values: SignInInput) {
     startTransition(async () => {
-      const res = await signInAction(values)
+      const res = await withSkewRecovery(() => signInAction(values))
       if (res && "error" in res) toast.error(res.error)
     })
   }

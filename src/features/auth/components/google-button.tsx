@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { isGoogleOAuthEnabled } from "@/lib/env"
 import { signInWithGoogleAction } from "@/features/auth/actions"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 /** Renders only when Google OAuth is enabled via env. Infra is always present. */
 export function GoogleButton() {
@@ -20,7 +21,7 @@ export function GoogleButton() {
       disabled={isPending}
       onClick={() =>
         startTransition(async () => {
-          const res = await signInWithGoogleAction()
+          const res = await withSkewRecovery(() => signInWithGoogleAction())
           if (res && "error" in res) toast.error(res.error)
         })
       }

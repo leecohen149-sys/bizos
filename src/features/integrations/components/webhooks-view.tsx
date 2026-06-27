@@ -21,6 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { WEBHOOK_RESOURCES } from "@/features/integrations/constants"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 import {
   createWebhookAction,
   deleteWebhookAction,
@@ -83,7 +84,9 @@ export function WebhooksView({
 
   function submit() {
     startTransition(async () => {
-      const res = await createWebhookAction({ url, events, description: description || null })
+      const res = await withSkewRecovery(() =>
+        createWebhookAction({ url, events, description: description || null })
+      )
       if ("error" in res) {
         toast.error(res.error)
         return
@@ -99,7 +102,7 @@ export function WebhooksView({
 
   function runAction(fn: () => Promise<{ error: string } | { ok: true }>, okMsg: string) {
     startTransition(async () => {
-      const res = await fn()
+      const res = await withSkewRecovery(fn)
       if ("error" in res) toast.error(res.error)
       else {
         toast.success(okMsg)

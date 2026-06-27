@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { updateLeadRecipientsAction } from "@/features/notifications/actions"
+import { withSkewRecovery } from "@/lib/actions/with-skew-recovery"
 
 export type LeadRecipientMember = {
   user_id: string
@@ -40,7 +41,7 @@ export function LeadRecipients({
 
   function save() {
     startTransition(async () => {
-      const res = await updateLeadRecipientsAction(selected)
+      const res = await withSkewRecovery(() => updateLeadRecipientsAction(selected))
       if ("error" in res) toast.error(res.error)
       else {
         toast.success("ההגדרה נשמרה")
