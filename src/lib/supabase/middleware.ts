@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
 
 import { publicEnv } from "@/lib/env"
+import { safeRelativePath } from "@/lib/auth/safe-redirect"
 import type { Database } from "./database.types"
 
 /** Public routes that don't require an authenticated session. */
@@ -61,10 +62,13 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Authenticated users shouldn't sit on auth screens.
+  // Authenticated users shouldn't sit on auth screens. Honor a pending invite
+  // (or other internal) target so a logged-in user who opens an invite link
+  // still lands on it instead of bouncing to "/".
   if (user && (pathname === "/login" || pathname === "/signup")) {
     const url = request.nextUrl.clone()
-    url.pathname = "/"
+    url.pathname = safeRelativePath(url.searchParams.get("redirectedFrom")) ?? "/"
+    url.search = ""
     return NextResponse.redirect(url)
   }
 

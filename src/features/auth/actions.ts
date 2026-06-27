@@ -5,6 +5,7 @@ import { headers } from "next/headers"
 
 import { createClient } from "@/lib/supabase/server"
 import { publicEnv } from "@/lib/env"
+import { safeRelativePath } from "@/lib/auth/safe-redirect"
 import {
   signInSchema,
   signUpSchema,
@@ -21,7 +22,8 @@ async function appOrigin() {
 }
 
 export async function signInAction(
-  values: unknown
+  values: unknown,
+  redirectTo?: string
 ): Promise<ActionResult> {
   const parsed = signInSchema.safeParse(values)
   if (!parsed.success) return { error: "פרטי ההתחברות אינם תקינים" }
@@ -30,14 +32,18 @@ export async function signInAction(
   const { error } = await supabase.auth.signInWithPassword(parsed.data)
   if (error) return { error: "אימייל או סיסמה שגויים" }
 
-  redirect("/")
+  redirect(safeRelativePath(redirectTo) ?? "/")
 }
 
 export async function signUpAction(
-  values: unknown
+  values: unknown,
+  redirectTo?: string
 ): Promise<ActionResult> {
   const parsed = signUpSchema.safeParse(values)
   if (!parsed.success) return { error: "פרטי ההרשמה אינם תקינים" }
+
+  // Invited users carry an invite path; everyone else onboards a new org.
+  const target = safeRelativePath(redirectTo) ?? "/onboarding"
 
   const supabase = await createClient()
   const origin = await appOrigin()
@@ -46,7 +52,7 @@ export async function signUpAction(
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.fullName },
-      emailRedirectTo: `${origin}/auth/callback?next=/onboarding`,
+      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(target)}`,
     },
   })
   if (error) {
@@ -57,7 +63,7 @@ export async function signUpAction(
   }
 
   // If email confirmation is OFF, a session is returned → go straight in.
-  if (data.session) redirect("/onboarding")
+  if (data.session) redirect(target)
 
   return {
     ok: true,
