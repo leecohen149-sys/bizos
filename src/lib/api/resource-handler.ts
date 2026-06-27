@@ -16,7 +16,7 @@ import { listQuerySchema } from "./schemas"
 
 type ItemCtx = { params: Promise<{ id: string }> }
 
-async function gate(
+export async function gate(
   req: Request,
   scope: string
 ): Promise<{ ctx: ApiAuthContext; headers: Record<string, string> } | Response> {

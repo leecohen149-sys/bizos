@@ -66,7 +66,24 @@ Headers: Authorization: Bearer bizos_live_…`}</code>
 PATCH /api/v1/deals/<id>
 { "status": "won" }`}</code>
 
-      <h2 className="mb-3 mt-8 text-xl font-semibold">6. Webhooks (Real-time)</h2>
+      <h2 className="mb-3 mt-8 text-xl font-semibold">6. יצירת עסקה עם השלב הנכון</h2>
+      <p>
+        ליצירת עסקה (<code>POST /api/v1/deals</code>) צריך <code>stage_id</code> — מזהה השלב
+        (העמודה) בלוח. כדי למצוא אותו לפי שם, שלפו תחילה את רשימת השלבים:
+      </p>
+      <code className={codeCls}>{`GET /api/v1/stages
+Headers: Authorization: Bearer bizos_live_…
+
+// תשובה: { "data": [ { "id", "name", "position", "pipeline_id", ... } ] }
+// ממוין לפי pipeline_id ואז position (העמודה הראשונה = position הנמוך ביותר).`}</code>
+      <p>
+        בחרו את ה-<code>id</code> של השלב המתאים (לפי <code>name</code> או <code>position</code>)
+        וצרו את העסקה — <code>pipeline_id</code> נגזר אוטומטית מ-<code>stage_id</code>:
+      </p>
+      <code className={codeCls}>{`POST /api/v1/deals
+{ "title": "לי בדיקה 1", "value": 0, "stage_id": "<id מהשלב>", "contact_id": "<id מאיש הקשר>" }`}</code>
+
+      <h2 className="mb-3 mt-8 text-xl font-semibold">7. Webhooks (Real-time)</h2>
       <p>
         בצעו <em>Add Webhook node</em> ב-n8n, העתיקו את ה-URL שלו, וב-BizOS תחת{" "}
         <strong>הגדרות ← אינטגרציות ← Webhooks</strong> רשמו אותו עם האירועים הרצויים (למשל{" "}

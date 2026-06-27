@@ -146,6 +146,50 @@ export function buildOpenApiDocument(appUrl: string) {
     }
   }
 
+  // Read-only stages listing — not a generic CRUD resource (no write surface),
+  // so it's added by hand. Lets automations resolve a stage_id by name/position
+  // before creating a deal.
+  paths["/api/v1/stages"] = {
+    get: {
+      tags: ["Deal"],
+      summary: "List pipeline stages",
+      description:
+        "All pipeline stages in your org, ordered by pipeline then position. Use this to resolve a `stage_id` (by `name` or `position`) before creating a deal. Requires the `deals:read` scope.",
+      security: [{ BizosApiKey: [] }],
+      responses: {
+        "200": {
+          description: "OK",
+          headers: rateLimitHeadersSpec,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string", format: "uuid" },
+                        name: { type: "string" },
+                        position: { type: "number" },
+                        pipeline_id: { type: "string", format: "uuid" },
+                        color: { type: "string" },
+                        probability: { type: "number" },
+                      },
+                    },
+                  },
+                },
+                required: ["data"],
+              },
+            },
+          },
+        },
+        ...commonErrors,
+      },
+    },
+  }
+
   return {
     openapi: "3.1.0",
     info: {

@@ -156,6 +156,24 @@ export const repo = {
     return (data as Row | null) ?? null
   },
 
+  /**
+   * Read-only listing of the org's pipeline stages. Stages are reference data
+   * (no `updated_at`, no keyset paging) and aren't a generic CRUD resource, so
+   * this lives outside the resource registry. Same tenant chokepoint: always
+   * scoped to `org_id`. Used by GET /api/v1/stages so automations (n8n) can
+   * resolve a `stage_id` by name/position before creating a deal.
+   */
+  async listStages(orgId: string): Promise<Row[]> {
+    const { data, error } = await db()
+      .from("crm_stages")
+      .select("id, name, position, pipeline_id, color, probability")
+      .eq("org_id", orgId)
+      .order("pipeline_id", { ascending: true })
+      .order("position", { ascending: true })
+    if (error) throw new Error(error.message)
+    return (data ?? []) as Row[]
+  },
+
   async remove(orgId: string, resource: ApiResource, id: string): Promise<boolean> {
     const { data, error } = await db()
       .from(table(resource))
