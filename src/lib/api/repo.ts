@@ -38,6 +38,22 @@ export type ListParams = {
   cursor?: string | null
   limit?: number
   updatedSince?: string | null
+  /** Exact-match filters; only columns in FILTERABLE[resource] are applied. */
+  filters?: Record<string, string>
+}
+
+/**
+ * Per-resource whitelist of columns the public API may filter on (exact match).
+ * Anything not listed is ignored — so a `?phone=` on /deals is a no-op rather
+ * than a Postgres error on a missing column.
+ */
+const FILTERABLE: Record<ApiResource, string[]> = {
+  contacts: ["phone", "email", "company_id", "owner_id"],
+  deals: ["contact_id", "company_id", "stage_id", "status", "owner_id"],
+  companies: ["domain"],
+  tasks: ["project_id", "status"],
+  projects: [],
+  activities: ["contact_id", "deal_id", "type"],
 }
 
 export type ListResult = {
@@ -89,6 +105,13 @@ export const repo = {
       .order("updated_at", { ascending })
       .order("id", { ascending })
       .limit(limit + 1)
+
+    if (params.filters) {
+      const allowed = FILTERABLE[resource] ?? []
+      for (const [col, val] of Object.entries(params.filters)) {
+        if (allowed.includes(col)) query = query.eq(col, val)
+      }
+    }
 
     if (params.updatedSince) {
       query = query.gte("updated_at", params.updatedSince)

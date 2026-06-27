@@ -67,8 +67,14 @@ export const activityCreateSchema = z.object({
 export const activityUpdateSchema = activityCreateSchema.partial()
 
 // --- shared list query ------------------------------------------------------
+// Filter params are exact-match; the repo whitelists which columns each resource
+// allows (repo.ts FILTERABLE), so unknown combos are ignored rather than erroring.
 export const listQuerySchema = z.object({
   cursor: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(200).optional(),
   updated_since: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  contact_id: z.string().optional(),
+  company_id: z.string().optional(),
 })

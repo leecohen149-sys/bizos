@@ -52,10 +52,18 @@ export function makeCollectionRoute(cfg: ResourceConfig) {
       const parsed = listQuerySchema.safeParse(Object.fromEntries(url.searchParams))
       if (!parsed.success) return ERRORS.invalidRequest(zodMessage(parsed.error))
 
+      // Exact-match filters; repo whitelists per resource, so passing all is safe.
+      const filters: Record<string, string> = {}
+      for (const k of ["phone", "email", "contact_id", "company_id"] as const) {
+        const v = parsed.data[k]
+        if (typeof v === "string" && v !== "") filters[k] = v
+      }
+
       const result = await repo.list(g.ctx.orgId, cfg.resource, {
         cursor: parsed.data.cursor,
         limit: parsed.data.limit,
         updatedSince: parsed.data.updated_since,
+        filters,
       })
       return ok(result.data, {
         meta: { next_cursor: result.nextCursor, has_more: result.hasMore },

@@ -89,6 +89,10 @@ export function buildOpenApiDocument(appUrl: string) {
           { name: "cursor", in: "query", schema: { type: "string" }, description: "Opaque pagination cursor from a previous `meta.next_cursor`." },
           { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 200, default: 50 } },
           { name: "updated_since", in: "query", schema: { type: "string", format: "date-time" }, description: "Return rows with updated_at >= this timestamp, oldest first." },
+          { name: "phone", in: "query", schema: { type: "string" }, description: "Exact-match filter (contacts only)." },
+          { name: "email", in: "query", schema: { type: "string" }, description: "Exact-match filter (contacts only)." },
+          { name: "contact_id", in: "query", schema: { type: "string", format: "uuid" }, description: "Exact-match filter (deals, activities)." },
+          { name: "company_id", in: "query", schema: { type: "string", format: "uuid" }, description: "Exact-match filter (contacts, deals)." },
         ],
         responses: {
           "200": {
