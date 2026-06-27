@@ -175,7 +175,7 @@ export function useDeals() {
           "*, contact:crm_contacts(id, first_name, last_name), company:crm_companies(id, name)"
         )
         .eq("org_id", orgId)
-        .order("position")
+        .order("created_at", { ascending: true })
       if (error) throw error
       return (data ?? []) as unknown as DealWithRelations[]
     },

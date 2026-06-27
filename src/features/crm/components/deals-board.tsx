@@ -128,8 +128,12 @@ export function DealsBoard({
     )
   }
 
+  // Within each stage column, order deals chronologically — oldest at the top,
+  // newest at the bottom. `created_at` is an ISO string so a string compare works.
   const byStage = (stageId: string) =>
-    deals.filter((d) => d.stage_id === stageId).sort((a, b) => a.position - b.position)
+    deals
+      .filter((d) => d.stage_id === stageId)
+      .sort((a, b) => a.created_at.localeCompare(b.created_at))
 
   const activeDeal = deals.find((d) => d.id === activeId) ?? null
 
