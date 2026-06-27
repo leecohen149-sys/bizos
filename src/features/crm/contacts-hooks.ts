@@ -56,7 +56,7 @@ export function useContacts() {
         .from("crm_contacts")
         .select("*, company:crm_companies(id, name)")
         .eq("org_id", orgId)
-        .order("first_name")
+        .order("created_at", { ascending: false })
       if (error) throw error
       return (data ?? []) as unknown as ContactWithCompany[]
     },

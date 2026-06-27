@@ -1,9 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus, Pencil, Trash2, Mail, Phone } from "lucide-react"
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Mail,
+  Phone,
+  Search,
+  ArrowDownWideNarrow,
+  ArrowDownAZ,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -56,18 +65,72 @@ import { useCompanies } from "@/features/crm/companies-hooks"
 import { useCanManage } from "@/features/org/org-context"
 import { createContactSchema, type CreateContactInput } from "@/features/crm/validations"
 
+type SortMode = "date" | "name"
+
 export function ContactsView() {
   const { data: contacts = [], isLoading } = useContacts()
   const del = useDeleteContact()
   const canManage = useCanManage()
+  const [query, setQuery] = useState("")
+  const [sort, setSort] = useState<SortMode>("date")
+
+  const fullName = (c: ContactWithCompany) => `${c.first_name} ${c.last_name ?? ""}`.trim()
+
+  const visibleContacts = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const filtered = q
+      ? contacts.filter((c) =>
+          [c.first_name, c.last_name, c.email, c.phone, c.title, c.company?.name]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(q)
+        )
+      : contacts
+    const sorted = [...filtered]
+    if (sort === "name") {
+      sorted.sort((a, b) => fullName(a).localeCompare(fullName(b), "he"))
+    } else {
+      // Newest first; `created_at` is an ISO string so a string compare works.
+      sorted.sort((a, b) => b.created_at.localeCompare(a.created_at))
+    }
+    return sorted
+  }, [contacts, query, sort])
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative max-w-xs flex-1">
+          <Search className="text-muted-foreground absolute start-2.5 top-1/2 size-4 -translate-y-1/2" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="חיפוש אנשי קשר…"
+            className="h-8 ps-8"
+          />
+        </div>
+        <Button
+          variant={sort === "date" ? "secondary" : "ghost"}
+          size="sm"
+          aria-pressed={sort === "date"}
+          onClick={() => setSort("date")}
+        >
+          <ArrowDownWideNarrow className="size-4" />
+          לפי תאריך
+        </Button>
+        <Button
+          variant={sort === "name" ? "secondary" : "ghost"}
+          size="sm"
+          aria-pressed={sort === "name"}
+          onClick={() => setSort("name")}
+        >
+          <ArrowDownAZ className="size-4" />
+          לפי א-ב
+        </Button>
         {canManage && (
           <ContactFormDialog
             trigger={
-              <Button>
+              <Button className="ms-auto">
                 <Plus className="size-4" />
                 איש קשר חדש
               </Button>
@@ -85,9 +148,13 @@ export function ContactsView() {
         <div className="text-muted-foreground flex flex-col items-center gap-2 py-10 text-center text-sm">
           אין אנשי קשר עדיין.
         </div>
+      ) : visibleContacts.length === 0 ? (
+        <div className="text-muted-foreground flex flex-col items-center gap-2 py-10 text-center text-sm">
+          לא נמצאו תוצאות.
+        </div>
       ) : (
         <div className="space-y-2">
-          {contacts.map((c) => {
+          {visibleContacts.map((c) => {
             const name = `${c.first_name} ${c.last_name ?? ""}`.trim()
             return (
               <Card key={c.id} className="group">
