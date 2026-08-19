@@ -60,11 +60,17 @@ function scopeDefaults(scope: TaskScope): Partial<TaskInsert> {
   return {}
 }
 
-function withScopeDefaults(scope: TaskScope, input: TaskInsert): TaskInsert {
+/** Scope + creator defaults, applied under anything the caller set explicitly. */
+function withDefaults(
+  scope: TaskScope,
+  creatorId: string,
+  input: TaskInsert
+): TaskInsert {
   const defined = Object.fromEntries(
     Object.entries(input).filter(([, v]) => v !== undefined)
   ) as TaskInsert
-  return { ...scopeDefaults(scope), ...defined }
+  // A new task is assigned to whoever created it unless stated otherwise.
+  return { assignee_id: creatorId, ...scopeDefaults(scope), ...defined }
 }
 
 export function useCreateTask(scope: TaskScope) {
@@ -76,14 +82,14 @@ export function useCreateTask(scope: TaskScope) {
   return useMutation({
     mutationFn: (input: TaskInsert) =>
       createTask(supabase, {
-        ...withScopeDefaults(scope, input),
+        ...withDefaults(scope, currentUserId, input),
         org_id: orgId,
         created_by: currentUserId,
       }),
     ...optimisticMutation<TaskWithRelations[], TaskInsert>(qc, {
       queryKey: key,
       applyOptimistic: (prev, raw) => {
-        const input = withScopeDefaults(scope, raw)
+        const input = withDefaults(scope, currentUserId, raw)
         const me = members.find((m) => m.user_id === input.assignee_id)
         const now = new Date().toISOString()
         const optimistic: TaskWithRelations = {
