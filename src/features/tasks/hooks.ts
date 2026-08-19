@@ -52,6 +52,21 @@ export function useTasks(scope: TaskScope) {
   })
 }
 
+/** Fields a scope implies — a task created in a scope must stay visible in it. */
+function scopeDefaults(scope: TaskScope): Partial<TaskInsert> {
+  if (scope.kind === "project") return { project_id: scope.projectId }
+  if (scope.kind === "inbox") return { project_id: null }
+  if (scope.kind === "assignee") return { assignee_id: scope.userId }
+  return {}
+}
+
+function withScopeDefaults(scope: TaskScope, input: TaskInsert): TaskInsert {
+  const defined = Object.fromEntries(
+    Object.entries(input).filter(([, v]) => v !== undefined)
+  ) as TaskInsert
+  return { ...scopeDefaults(scope), ...defined }
+}
+
 export function useCreateTask(scope: TaskScope) {
   const supabase = useSupabase()
   const qc = useQueryClient()
@@ -60,10 +75,15 @@ export function useCreateTask(scope: TaskScope) {
 
   return useMutation({
     mutationFn: (input: TaskInsert) =>
-      createTask(supabase, { ...input, org_id: orgId, created_by: currentUserId }),
+      createTask(supabase, {
+        ...withScopeDefaults(scope, input),
+        org_id: orgId,
+        created_by: currentUserId,
+      }),
     ...optimisticMutation<TaskWithRelations[], TaskInsert>(qc, {
       queryKey: key,
-      applyOptimistic: (prev, input) => {
+      applyOptimistic: (prev, raw) => {
+        const input = withScopeDefaults(scope, raw)
         const me = members.find((m) => m.user_id === input.assignee_id)
         const now = new Date().toISOString()
         const optimistic: TaskWithRelations = {

@@ -89,7 +89,12 @@ export function TasksView({
             quickAddDefaults={quickAddDefaults}
           />
         ) : (
-          <TaskBoardView tasks={visibleTasks} scope={scope} onOpen={openTask} />
+          <TaskBoardView
+            tasks={visibleTasks}
+            scope={scope}
+            onOpen={openTask}
+            quickAddDefaults={quickAddDefaults}
+          />
         )}
       </div>
 

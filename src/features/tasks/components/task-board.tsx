@@ -29,6 +29,7 @@ import { subtaskProgress } from "@/features/tasks/api"
 import type { TaskScope } from "@/features/tasks/api"
 import { useUpdateTask } from "@/features/tasks/hooks"
 import type { TaskWithRelations } from "@/lib/types"
+import type { NewTask } from "@/features/tasks/hooks"
 import { TaskCardContent } from "./task-card"
 import { QuickAddTask } from "./quick-add-task"
 
@@ -74,12 +75,14 @@ function Column({
   allTasks,
   scope,
   onOpen,
+  quickAddDefaults,
 }: {
   status: TaskStatus
   tasks: TaskWithRelations[]
   allTasks: TaskWithRelations[]
   scope: TaskScope
   onOpen?: (t: TaskWithRelations) => void
+  quickAddDefaults?: Partial<NewTask>
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col:${status}` })
 
@@ -107,7 +110,7 @@ function Column({
         </SortableContext>
         <QuickAddTask
           scope={scope}
-          defaults={{ status }}
+          defaults={{ ...quickAddDefaults, status }}
           placeholder="הוספה…"
           className="px-1"
         />
@@ -120,10 +123,12 @@ export function TaskBoardView({
   tasks,
   scope,
   onOpen,
+  quickAddDefaults,
 }: {
   tasks: TaskWithRelations[]
   scope: TaskScope
   onOpen?: (t: TaskWithRelations) => void
+  quickAddDefaults?: Partial<NewTask>
 }) {
   const update = useUpdateTask(scope)
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -204,6 +209,7 @@ export function TaskBoardView({
             allTasks={tasks}
             scope={scope}
             onOpen={onOpen}
+            quickAddDefaults={quickAddDefaults}
           />
         ))}
       </div>
